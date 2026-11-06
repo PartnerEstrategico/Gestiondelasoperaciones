@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Comparador de metodologías de mejora</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+/* Layout: barra superior con navegación libre; vista de inicio con 4 tarjetas, vista de detalle con pestañas, vista de comparación en 4 columnas. */
+:root{
+  --bg:#F3F5F7; --panel:#FFFFFF; --ink:#16222E; --muted:#556575; --line:#D5DCE3;
+  --jit:#B45F06; --six:#1F5FA8; --lean:#237A4B; --i40:#6540B8;
+  --display:'Barlow Condensed','Arial Narrow',Arial,sans-serif;
+  --body:'Source Sans 3','Segoe UI',Arial,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F1720; --panel:#17222E; --ink:#E6ECF2; --muted:#9AAABA; --line:#2B3A49;
+    --jit:#F0A04B; --six:#6FA8F0; --lean:#5CC58E; --i40:#A98BF2; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F1720; --panel:#17222E; --ink:#E6ECF2; --muted:#9AAABA; --line:#2B3A49;
+  --jit:#F0A04B; --six:#6FA8F0; --lean:#5CC58E; --i40:#A98BF2; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:400 17px/1.55 var(--body)}
+h1,h2,h3{font-family:var(--display);font-weight:700;line-height:1.1;margin:0;text-wrap:balance;letter-spacing:.01em}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,a:focus-visible{outline:3px solid var(--six);outline-offset:2px}
+.wrap{max-width:1100px;margin:0 auto;padding:0 20px}
+
+.top{background:var(--panel);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+.top .wrap{display:flex;flex-wrap:wrap;gap:8px 20px;align-items:center;padding-top:10px;padding-bottom:10px}
+.brand{font-family:var(--display);font-weight:700;font-size:20px;letter-spacing:.02em;margin-right:auto}
+.brand small{display:block;font:600 12px var(--body);color:var(--muted);letter-spacing:.02em}
+nav{display:flex;flex-wrap:wrap;gap:6px}
+nav button{border:1px solid var(--line);background:transparent;padding:6px 12px;border-radius:6px;font-weight:600;font-size:15px}
+nav button[aria-current="page"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+nav button:hover{border-color:var(--ink)}
+
+.hero{padding:34px 0 8px}
+.hero h1{font-size:clamp(34px,6vw,54px);max-width:18ch}
+.hero p{max-width:62ch;color:var(--muted);margin:12px 0 0}
+.hint{display:inline-block;margin-top:14px;font-weight:600;font-size:14px;border-left:4px solid var(--ink);padding:2px 10px}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(235px,1fr));gap:16px;margin:26px 0 30px}
+.card{text-align:left;background:var(--panel);border:1px solid var(--line);border-top:6px solid var(--c);border-radius:8px;padding:18px;display:flex;flex-direction:column;gap:8px;min-height:190px}
+.card:hover{box-shadow:0 4px 18px rgba(0,0,0,.12);transform:translateY(-2px)}
+.card h2{font-size:30px;color:var(--c)}
+.card .full{font-size:14px;color:var(--muted);font-weight:600}
+.card .tag{flex:1}
+.card .go{font-weight:700;font-size:14px;color:var(--c)}
+[data-m="jit"]{--c:var(--jit)} [data-m="six"]{--c:var(--six)} [data-m="lean"]{--c:var(--lean)} [data-m="i40"]{--c:var(--i40)}
+
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:22px}
+.sub{font:700 13px var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.rel{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-bottom:40px}
+.rel p{margin:4px 0 0;color:var(--muted);font-size:16px}
+
+.dhead{padding:28px 0 16px;border-left:8px solid var(--c);padding-left:16px;margin-top:26px}
+.dhead h1{font-size:clamp(36px,6vw,56px);color:var(--c)}
+.dhead p{margin:6px 0 0;color:var(--muted);max-width:60ch}
+.tabs{display:flex;flex-wrap:wrap;gap:6px;margin:18px 0 0}
+.tabs button{background:var(--panel);border:1px solid var(--line);border-bottom:3px solid transparent;padding:9px 16px;border-radius:6px 6px 0 0;font-weight:700}
+.tabs button[aria-selected="true"]{border-bottom-color:var(--c);color:var(--c);background:var(--panel)}
+.tabbody{background:var(--panel);border:1px solid var(--line);border-top:3px solid var(--c);border-radius:0 8px 8px 8px;padding:24px;min-height:240px}
+.tabbody h2{font-size:28px;margin-bottom:12px}
+.tabbody p{margin:0 0 10px;max-width:68ch}
+.tabbody ul{margin:0;padding:0;list-style:none;display:grid;gap:10px;max-width:70ch}
+.tabbody li{padding:10px 14px;border-left:5px solid var(--c);background:color-mix(in srgb,var(--c) 9%,var(--panel));border-radius:0 6px 6px 0}
+.tabbody li.neg{border-left-style:dashed}
+.exname{font-weight:700;color:var(--c);font-size:19px}
+.pager{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;margin:22px 0 44px}
+.pager button{border:1px solid var(--line);background:var(--panel);padding:9px 16px;border-radius:6px;font-weight:600}
+.pager button:hover{border-color:var(--ink)}
+
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0}
+.chips button{border:1px solid var(--line);background:var(--panel);padding:8px 16px;border-radius:999px;font-weight:700}
+.chips button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(235px,1fr));gap:14px}
+.col{background:var(--panel);border:1px solid var(--line);border-top:6px solid var(--c);border-radius:8px;padding:16px}
+.col h3{font-size:26px;color:var(--c);margin-bottom:8px}
+.col p,.col li{font-size:16px;margin:0 0 8px}
+.col ul{padding-left:18px;margin:0}
+.tablewrap{overflow-x:auto;margin:30px 0 44px}
+table{border-collapse:collapse;width:100%;min-width:760px;background:var(--panel)}
+th,td{border:1px solid var(--line);padding:10px 12px;text-align:left;vertical-align:top;font-size:15.5px}
+thead th{font-family:var(--display);font-size:22px;color:var(--c)}
+tbody th{background:color-mix(in srgb,var(--ink) 6%,var(--panel));width:150px;font-weight:700}
+caption{text-align:left;font-weight:700;padding-bottom:8px}
+
+footer{border-top:1px solid var(--line);padding:22px 0 40px;font-size:14.5px;color:var(--muted)}
+footer p{margin:0 0 6px;max-width:80ch}
+@media (prefers-reduced-motion:no-preference){.card{transition:transform .15s,box-shadow .15s}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <div class="brand">Metodologías de mejora<small>Gestión de las operaciones · Grupo 212028_192 · Tarea 4 · Paso 4</small></div>
+    <nav id="nav" aria-label="Navegación principal"></nav>
+  </div>
+</header>
+<main class="wrap" id="app" tabindex="-1"></main>
+<footer>
+  <div class="wrap">
+    <p>Contenido conceptual elaborado con base en Heizer et al. (2021), Jacobs y Chase (2018) y Socconini Pérez Gómez (2019). La integración entre metodologías sigue a Skalli et al. (2024). Los casos industriales son ejemplos de aplicación ampliamente documentados; el caso AeroTech Ambiental corresponde a la empresa modelo del curso (Anexo 1).</p>
+    <p>Referencias completas en el informe final (APA 7).</p>
+  </div>
+</footer>
+
+<script>
+const M = [
+{ id:'jit', hash:'jit-tps', name:'JIT / TPS', full:'Justo a Tiempo y Sistema de Producción Toyota',
+  tag:'Producir solo lo que se necesita, cuando se necesita y en la cantidad necesaria.',
+  origen:'Toyota, Japón, décadas de 1950-1970 (Taiichi Ohno)',
+  enfoque:'Flujo continuo e inventario mínimo',
+  herr:'Kanban, jidoka, andon, nivelación de la producción (heijunka)',
+  pregunta:'¿Estamos produciendo más, antes o con más inventario de lo que pide el cliente?',
+  def:'Filosofía de producción nacida en Toyota que busca fabricar y entregar únicamente lo necesario, en el momento y la cantidad requeridos. Se apoya en dos pilares: el Justo a Tiempo, que jala la producción desde la demanda real mediante señales como el kanban, y el jidoka, que detiene el proceso ante un defecto para no pasarlo a la etapa siguiente.',
+  pros:['Reduce inventarios, espacio y costos de almacenamiento.','Deja al descubierto los problemas de calidad y de proceso, porque no hay colchón de inventario que los esconda.','Acorta los tiempos de entrega y libera capital de trabajo.','Fomenta proveedores cercanos y relaciones de largo plazo.'],
+  cons:['Depende de proveedores muy confiables y de entregas frecuentes.','Es vulnerable a interrupciones: sin inventario, una falla de suministro detiene la línea.','Funciona mejor con una demanda razonablemente nivelada.','Exige una disciplina cultural que tarda años en consolidarse.'],
+  exTitle:'Toyota Motor Corporation',
+  ex:'En las líneas de ensamble de Toyota, cada estación pide piezas a la anterior mediante tarjetas kanban, y cualquier operario puede detener la línea con el cordón andon cuando detecta un defecto. Es el origen del sistema que luego copió la industria automotriz mundial. Su límite quedó a la vista tras el terremoto de 2011 en Japón, cuando la interrupción de proveedores obligó a detener plantas.',
+  aero:'Un kanban de producción entre las estaciones A y B limitaría los chasis en proceso a unas 16 unidades y evitaría fabricar de más, y un sistema de reposición controlaría las piezas críticas importadas. Por su plazo de entrega de 3 semanas en motores, el JIT debe aplicarse con cautela con esos proveedores.' },
+{ id:'six', hash:'six-sigma', name:'Six Sigma', full:'Calidad total basada en datos',
+  tag:'Reducir la variabilidad y los defectos con estadística y el ciclo DMAIC.',
+  origen:'Motorola, Estados Unidos, 1986',
+  enfoque:'Variabilidad, defectos y calidad',
+  herr:'DMAIC, diagramas de Pareto y causa-efecto, control estadístico de procesos, AMEF',
+  pregunta:'¿Por qué varía el proceso y qué causa los defectos?',
+  def:'Metodología de mejora de calidad que usa datos y herramientas estadísticas para reducir la variabilidad de los procesos y eliminar defectos. Su meta es llegar a 3,4 defectos por millón de oportunidades. Se aplica con el ciclo DMAIC (Definir, Medir, Analizar, Mejorar y Controlar) y con roles especializados como Green Belt y Black Belt.',
+  pros:['Las decisiones se basan en datos y no en opiniones.','Reduce defectos, retrabajo y costos de mala calidad.','Su impacto se puede medir en dinero y en indicadores de calidad.','Ofrece un método y roles claros para conducir proyectos.'],
+  cons:['Requiere capacitación costosa y datos confiables.','Se centra en la variabilidad y menos en la velocidad del flujo.','Puede volverse burocrático en problemas pequeños.','Los resultados de cada proyecto toman semanas o meses.'],
+  exTitle:'Motorola y General Electric',
+  ex:'Six Sigma nació en Motorola en 1986 como respuesta a los altos costos de defectos en la manufactura electrónica. General Electric lo adoptó a mediados de la década de 1990 y lo extendió a toda la empresa, lo que lo difundió como estándar de gestión de calidad en la industria.',
+  aero:'AeroTech tiene una tasa de defectos del 8 % en las pruebas de vuelo, causada casi por completo por micro-fracturas en la soldadura de la placa base. Es un proyecto DMAIC natural: medir la tasa por lote, operario y equipo, analizar las causas, mejorar la soldadura y controlar el resultado.' },
+{ id:'lean', hash:'lean', name:'Lean', full:'Lean Manufacturing o manufactura esbelta',
+  tag:'Eliminar el desperdicio para entregar más valor al cliente con menos recursos.',
+  origen:'Derivada del TPS; difundida en Occidente desde 1990',
+  enfoque:'Desperdicio (Muda, Mura y Muri) y flujo de valor',
+  herr:'5S, SMED, Kanban, Poka-Yoke, TPM, mapa de flujo de valor',
+  pregunta:'¿Qué actividades no agregan valor y cómo las eliminamos?',
+  def:'Sistema de gestión que busca maximizar el valor para el cliente eliminando todo lo que no lo aporta. Identifica tres fuentes de pérdida: Muda (desperdicios), Mura (irregularidad) y Muri (sobrecarga). Combina herramientas como 5S, SMED, Kanban, Poka-Yoke y TPM, junto con la participación de las personas en la mejora continua.',
+  pros:['Reduce costos y tiempos de ciclo.','Mejora el flujo, la productividad y el orden de la planta.','Aumenta la calidad al prevenir errores en el origen.','Involucra a los operarios en la solución de problemas.'],
+  cons:['Exige un cambio cultural y enfrenta resistencia al cambio.','Aplicar solo las herramientas, sin la filosofía, da resultados que no se sostienen.','Sin cuidado, puede percibirse como un recorte de personal.','Es más difícil de aplicar con una demanda muy variable.'],
+  exTitle:'Industria automotriz y caso AeroTech',
+  ex:'El estudio del MIT sobre la industria automotriz, publicado en 1990, dio a conocer en Occidente el modelo de Toyota con el nombre de producción esbelta, y numerosos fabricantes de automóviles lo adoptaron. En el curso, la propuesta para AeroTech Ambiental aplica 5S y trabajo estandarizado, Poka-Yoke y Kanban sobre su línea de ensamble de drones.',
+  aero:'La estación B (instalación electrónica) trabaja al 142 % de su capacidad, y el Anexo reporta chasis de más y soldadura defectuosa. La propuesta del Paso 3 usa 5S en B, Poka-Yoke en la soldadura y Kanban entre estaciones, y recomienda sumar capacidad en B porque Lean solo no cierra ese déficit.' },
+{ id:'i40', hash:'industria-4-0', name:'Industria 4.0', full:'Fábricas conectadas e inteligentes',
+  tag:'Conectar máquinas, productos y datos para decidir en tiempo real.',
+  origen:'Alemania, 2011',
+  enfoque:'Digitalización y datos',
+  herr:'IoT, big data, inteligencia artificial, robótica, gemelo digital, blockchain',
+  pregunta:'¿Qué datos del proceso estamos dejando de aprovechar?',
+  def:'Integración de tecnologías digitales como el Internet de las cosas (IoT), el big data, la inteligencia artificial, la robótica, los gemelos digitales y la cadena de bloques en la producción y en la cadena de suministro. Su propósito es crear sistemas conectados que monitorean, analizan y ajustan los procesos en tiempo real.',
+  pros:['Da visibilidad y trazabilidad en tiempo real a toda la cadena.','Permite el mantenimiento predictivo y menos paradas imprevistas.','Facilita la personalización y la flexibilidad de la producción.','Aporta datos para mejorar la calidad y medir la sostenibilidad.'],
+  cons:['Exige una inversión inicial alta.','Requiere nuevas habilidades y plantea el riesgo de desplazar mano de obra.','Introduce riesgos de ciberseguridad y dependencia de los datos.','Integrarla con sistemas y máquinas antiguas es complejo.'],
+  exTitle:'Planta de Siemens en Amberg (Alemania)',
+  ex:'La planta de electrónica de Siemens en Amberg es uno de los referentes de fábrica digital: los productos llevan información que las máquinas leen para saber cómo ensamblarlos, y la producción se controla con datos. Es el ejemplo clásico de cómo la conectividad y el análisis de datos elevan la calidad y la flexibilidad de una planta.',
+  aero:'Sensores IoT en cada dron permitirían conocer su estado y planear su retoma al final de la vida útil (logística inversa), y el análisis de los datos de soldadura ayudaría a anticipar defectos. Como discutimos en el podcast, la automatización debe acompañarse de un plan de reconversión de las personas.' }
+];
+
+const TABS=[['def','Definición'],['pros','Ventajas'],['cons','Desventajas'],['ex','Ejemplo industrial'],['aero','En AeroTech']];
+const app=document.getElementById('app'), nav=document.getElementById('nav');
+let state={view:'home',m:null,tab:'def',attr:'def'};
+
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;')}
+function navRender(){
+  const items=[['home','Inicio'],...M.map(m=>[m.id,m.name]),['compare','Comparar']];
+  nav.innerHTML=items.map(([k,l])=>{
+    const cur=(k==='home'&&state.view==='home')||(k==='compare'&&state.view==='compare')||(state.view==='method'&&state.m===k);
+    return `<button data-go="${k}" ${cur?'aria-current="page"':''}>${esc(l)}</button>`;
+  }).join('');
+}
+function hashFor(k){ if(k==='home')return ''; if(k==='compare')return 'comparar'; return M.find(m=>m.id===k).hash; }
+function go(k){ const h=hashFor(k); if(('#'+h)===location.hash||(h===''&&!location.hash)){route();} else {location.hash=h;} }
+
+function home(){
+  app.innerHTML=`
+  <section class="hero">
+    <h1>Cuatro rutas hacia la mejora de las operaciones</h1>
+    <p>Esta presentación compara JIT/TPS, Six Sigma, Lean Manufacturing e Industria 4.0. Entra en la que quieras, en el orden que prefieras, y haz clic en las pestañas para ver su definición, ventajas, desventajas y un ejemplo de aplicación industrial.</p>
+    <span class="hint">Haz clic en una tarjeta para abrirla o usa el menú superior.</span>
+  </section>
+  <div class="cards">${M.map(m=>`
+    <button class="card" data-m="${m.id}" data-go="${m.id}">
+      <h2>${esc(m.name)}</h2><span class="full">${esc(m.full)}</span>
+      <span class="tag">${esc(m.tag)}</span><span class="go">Ver detalle →</span>
+    </button>`).join('')}
+  </div>
+  <div class="rel">
+    <div class="panel"><div class="sub">Cómo se relacionan</div><h3>Una familia con un origen común</h3>
+      <p>El JIT/TPS es la base de Lean. Six Sigma aporta el rigor estadístico para reducir la variabilidad que Lean deja al descubierto. La Industria 4.0 aporta los datos y la conectividad que potencian a las tres.</p></div>
+    <div class="panel"><div class="sub">Dónde se encuentran</div><h3>Lean Six Sigma 4.0</h3>
+      <p>La literatura reciente propone integrar Lean, Six Sigma y las tecnologías de la Industria 4.0 en un solo marco, llamado LSS4.0, para lograr excelencia operacional (Skalli et al., 2024).</p></div>
+    <div class="panel"><div class="sub">Compáralas</div><h3>Las cuatro, lado a lado</h3>
+      <p>En la vista <button data-go="compare" style="border:0;background:none;padding:0;font-weight:700;text-decoration:underline">Comparar</button> eliges un criterio y ves las cuatro metodologías en columnas, con una ficha rápida al final.</p></div>
+  </div>`;
+}
+
+function method(id){
+  const m=M.find(x=>x.id===id), i=M.indexOf(m), prev=M[(i+3)%4], next=M[(i+1)%4];
+  app.innerHTML=`
+  <section data-m="${m.id}">
+    <div class="dhead"><h1>${esc(m.name)}</h1><p>${esc(m.full)}. ${esc(m.tag)}</p></div>
+    <div class="tabs" role="tablist" aria-label="Contenido de ${esc(m.name)}">
+      ${TABS.map(([k,l])=>`<button role="tab" id="tab-${k}" aria-selected="${state.tab===k}" aria-controls="tabpanel" data-tab="${k}">${l}</button>`).join('')}
+    </div>
+    <div class="tabbody" id="tabpanel" role="tabpanel" tabindex="0">${tabBody(m,state.tab)}</div>
+    <div class="pager">
+      <button data-go="${prev.id}">← ${esc(prev.name)}</button>
+      <button data-go="compare">Comparar las cuatro</button>
+      <button data-go="${next.id}">${esc(next.name)} →</button>
+    </div>
+  </section>`;
+}
+function tabBody(m,t){
+  if(t==='def') return `<h2>Definición</h2><p>${esc(m.def)}</p>`;
+  if(t==='pros') return `<h2>Ventajas</h2><ul>${m.pros.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`;
+  if(t==='cons') return `<h2>Desventajas</h2><ul>${m.cons.map(x=>`<li class="neg">${esc(x)}</li>`).join('')}</ul>`;
+  if(t==='ex') return `<h2>Ejemplo de aplicación industrial</h2><p class="exname">${esc(m.exTitle)}</p><p>${esc(m.ex)}</p>`;
+  return `<h2>En AeroTech Ambiental</h2><p>${esc(m.aero)}</p><p style="color:var(--muted);font-size:15px">Caso de la empresa modelo del curso (Anexo 1).</p>`;
+}
+
+function compare(){
+  const label=TABS.find(t=>t[0]===state.attr)[1];
+  app.innerHTML=`
+  <section class="hero"><h1>Las cuatro, lado a lado</h1>
+    <p>Elige un criterio para ver cómo responde cada metodología. Haz clic en el nombre de una columna para abrir su detalle.</p></section>
+  <div class="chips" role="group" aria-label="Criterio de comparación">
+    ${TABS.map(([k,l])=>`<button data-attr="${k}" aria-pressed="${state.attr===k}">${l}</button>`).join('')}
+  </div>
+  <div class="cols" aria-live="polite">
+    ${M.map(m=>`<div class="col" data-m="${m.id}"><h3><button data-go="${m.id}" style="border:0;background:none;padding:0;font:inherit;color:inherit;text-align:left;text-decoration:underline">${esc(m.name)}</button></h3>${attrBody(m,state.attr)}</div>`).join('')}
+  </div>
+  <div class="tablewrap">
+    <table>
+      <caption>Ficha rápida de las cuatro metodologías</caption>
+      <thead><tr><th scope="col"></th>${M.map(m=>`<th scope="col" data-m="${m.id}">${esc(m.name)}</th>`).join('')}</tr></thead>
+      <tbody>
+        ${[['Origen','origen'],['Enfoque principal','enfoque'],['Herramientas clave','herr'],['Pregunta que responde','pregunta']].map(([l,k])=>`<tr><th scope="row">${l}</th>${M.map(m=>`<td>${esc(m[k])}</td>`).join('')}</tr>`).join('')}
+      </tbody>
+    </table>
+  </div>`;
+}
+function attrBody(m,t){
+  if(t==='def') return `<p>${esc(m.def)}</p>`;
+  if(t==='pros') return `<ul>${m.pros.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`;
+  if(t==='cons') return `<ul>${m.cons.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`;
+  if(t==='ex') return `<p><strong>${esc(m.exTitle)}.</strong> ${esc(m.ex)}</p>`;
+  return `<p>${esc(m.aero)}</p>`;
+}
+
+function route(){
+  const h=location.hash.replace('#','');
+  const m=M.find(x=>x.hash===h);
+  if(m){ if(state.m!==m.id||state.view!=='method'){state.tab='def';} state.view='method'; state.m=m.id; }
+  else if(h==='comparar'){ state.view='compare'; state.m=null; }
+  else { state.view='home'; state.m=null; }
+  navRender();
+  if(state.view==='home')home(); else if(state.view==='compare')compare(); else method(state.m);
+}
+
+document.addEventListener('click',e=>{
+  const g=e.target.closest('[data-go]'); if(g){ go(g.dataset.go); window.scrollTo(0,0); return; }
+  const t=e.target.closest('[data-tab]'); if(t){ state.tab=t.dataset.tab; method(state.m); document.getElementById('tab-'+state.tab).focus(); return; }
+  const a=e.target.closest('[data-attr]'); if(a){ state.attr=a.dataset.attr; compare(); document.querySelector('[data-attr="'+state.attr+'"]').focus(); }
+});
+document.addEventListener('keydown',e=>{
+  const t=e.target.closest('[role="tab"]'); if(!t) return;
+  const ks=TABS.map(x=>x[0]); let i=ks.indexOf(state.tab);
+  if(e.key==='ArrowRight') i=(i+1)%ks.length; else if(e.key==='ArrowLeft') i=(i+ks.length-1)%ks.length; else return;
+  e.preventDefault(); state.tab=ks[i]; method(state.m); document.getElementById('tab-'+state.tab).focus();
+});
+window.addEventListener('hashchange',route);
+route();
+</script>
+</body>
+</html>
